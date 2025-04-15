@@ -1,8 +1,7 @@
-from utils.kriging_model import KRGModel
 
 # OptiBrain
 
-A python package that aims to select automatically the best model for your tasks, save the trained model and load it.
+A python package that aims to select automatically the best model for your tasks and save the trained model..
 
 ## Install
 
