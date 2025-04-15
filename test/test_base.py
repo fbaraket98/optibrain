@@ -1,5 +1,5 @@
 import pandas as pd
-
+import os
 from sklearn.datasets import make_classification
 from base.surrogate_model import SurrogateModeling
 import numpy as np
@@ -23,3 +23,4 @@ def test_save():
     # Asserts
     assert np.allclose(srgt.X, X), "The data X are not matching"
     assert np.allclose(srgt.y, y), "The data y are not matching"
+    assert os.path.exists('./metamodel_test/file_test')
