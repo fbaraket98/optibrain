@@ -13,61 +13,6 @@ from sklearn import clone
 from sklearn.pipeline import Pipeline
 
 
-class AverageEstimator:
-    """
-    A simple ensemble estimator that computes the average prediction of a list of estimators.
-
-    Parameters
-    ----------
-    estimator_list : list
-        A list of individual estimators to be averaged.
-
-    Attributes
-    ----------
-    estimator_list : list
-        The list of individual estimators.
-    n : int
-        The number of estimators in the list.
-
-    Methods
-    -------
-    predict(*args, **kwargs)
-        Compute the average prediction across all estimators.
-
-    predict_proba(*args, **kwargs)
-        Compute the average class probabilities across all estimators.
-
-    Returns
-    -------
-    numpy.ndarray
-        The averaged prediction or class probabilities.
-    """
-
-    def __init__(self, estimator_list: list):
-        """
-        Initialize the AverageEstimator.
-
-        Parameters
-        ----------
-        estimator_list : list
-            A list of individual estimators to be averaged.
-        """
-        self.estimator_list = estimator_list
-        self.n = len(estimator_list)
-
-    def predict(self, *args, **kwargs) -> iter:
-        est = 0
-        for estimator in self.estimator_list:
-            est += estimator.predict(*args, **kwargs)
-        return np.array(est / self.n)
-
-    def predict_proba(self, *args, **kwargs) -> iter:
-        est = 0
-        for estimator in self.estimator_list:
-            est += estimator.predict_proba(*args, **kwargs)
-        return np.array(est / self.n)
-
-
 def _clone(estimator):
     """
     Create and return a clone of the input estimator.
@@ -145,52 +90,12 @@ def get_splitting_matrix(X: pd.DataFrame,
             all_splits.loc[test, i] = 2
     else:
         all_splits = pd.DataFrame(False, index=range(len(X)),
-                                  columns=range(2*len(iter_cross_validation)))
+                                  columns=range(2 * len(iter_cross_validation)))
         for i, (train, test) in enumerate(iter_cross_validation):
-            all_splits.loc[train, 2*i] = True
-            all_splits.loc[test, 2*i + 1] = True
+            all_splits.loc[train, 2 * i] = True
+            all_splits.loc[test, 2 * i + 1] = True
 
     return all_splits
-
-
-def check_splitting_strategy(X: pd.DataFrame,
-                             iter_cross_validation: iter):
-    all_splits_train = pd.DataFrame(0, index=range(len(X)),
-                                    columns=range(len(iter_cross_validation)))
-    all_splits_test = pd.DataFrame(0, index=range(len(X)),
-                                   columns=range(len(iter_cross_validation)))
-
-    for i, (train, test) in enumerate(iter_cross_validation):
-        all_splits_train.loc[train, i] = 1
-        all_splits_test.loc[test, i] = 1
-
-    m_train = all_splits_train.mean().mean()
-    m_test = all_splits_test.mean().mean()
-    print(f"Mean number of time an observation is used in "
-          f"training set : {m_train}"
-          f"\n"
-          f"Mean number of time an observation is used in "
-          f"testing set : {m_test}"
-          )
-    return all_splits_test, all_splits_train
-
-
-def hash_dataframe(data: pd.DataFrame, how="whole"):
-    if how == "whole":
-        return hashlib.md5(
-            pd.util.hash_pandas_object(
-                data).values).hexdigest()
-    elif how == "row_wise":
-        return pd.DataFrame(
-            np.array(
-                [hashlib.md5(x).hexdigest() for x in
-                 pd.util.hash_pandas_object(data).values])).T
-    elif how == "types":
-        return hashlib.md5(
-            pd.util.hash_pandas_object(
-                data.dtypes).values).hexdigest()
-    else:
-        raise TypeError(f"method {how} is unknown")
 
 
 def get_hash(**kwargs) -> str:
@@ -204,18 +109,6 @@ def get_hash(**kwargs) -> str:
             hash_.update(json.dumps(kwargs[key]).encode())
 
     return hash_.hexdigest()
-
-
-def get_estimator_name(estimator) -> str:
-    if hasattr(estimator, "steps"):
-        est = estimator.steps[-1][1]
-    else:
-        est = estimator
-    if hasattr(est, "__name__"):
-        estimator_name = est.__name__
-    else:
-        estimator_name = str(est).split("(")[0]
-    return estimator_name
 
 
 def check_started(message: str, need_build: bool = False) -> Callable:
@@ -254,42 +147,3 @@ def check_started(message: str, need_build: bool = False) -> Callable:
         return wrapper
 
     return decorator
-
-
-def interpolate_roc(roc_curve_metric: dict[dict[tuple[dict[np.array]]]],
-                    mean_fpr=np.linspace(0, 1, 100)):
-    from numpy import interp
-    roc_curve_interp = {}
-
-    for i, _ in enumerate(roc_curve_metric.keys()):
-        roc_curve_interp[i] = {}
-        for step in ["train", "test"]:
-            fpr, tpr, th = roc_curve_metric[i][step]
-
-            tpr = interp(mean_fpr, fpr, tpr, left=True)
-            th = interp(mean_fpr, fpr, th, left=True)
-            roc_curve_interp[i][step] = mean_fpr, tpr, th
-    return roc_curve_interp
-
-
-def _get_processing_pipeline(estimators: list):
-    if hasattr(estimators[0], "steps") and estimators[0].steps.__len__() > 1:
-        processing_estimators = [Pipeline(est.steps[:-1]) for est in
-                                 estimators]
-        model_estimators = [est.steps[-1][1] for est in estimators]
-    else:
-        processing_estimators = []
-        model_estimators = [est for est in estimators]
-    return processing_estimators, model_estimators
-
-
-def _get_and_check_var_importance(estimator):
-    if hasattr(estimator, 'feature_importances_'):
-        return estimator.feature_importances_
-    if hasattr(estimator, 'coef_'):
-        return estimator.coef_
-    if hasattr(estimator, '__getitem__'):
-        if hasattr(estimator[-1], 'feature_importances_'):
-            return estimator[-1].feature_importances_
-        if hasattr(estimator[-1], 'coef_'):
-            return estimator[-1].coef_

@@ -24,3 +24,32 @@ def test_save():
     assert np.allclose(srgt.X, X), "The data X are not matching"
     assert np.allclose(srgt.y, y), "The data y are not matching"
     assert os.path.exists('./metamodel_test/file_test')
+
+
+def test_multioutput():
+    import pickle
+    from sklearn.model_selection import train_test_split
+    path = "C:/Users/Fatma/Downloads/WireModelData/DB_wiremodel24.pickle"
+    with open(path, "rb") as f:
+        x = pickle.load(f)
+    X = pd.DataFrame(x['INPUT']['data'])
+    X.columns = ['tension', 'amplitude', 'deplacement_serrage',
+                 'deplacement_poids_propre', 'span_length', 'denivele']
+    y = x['OUTPUT']['data']
+
+    # print(len(y))
+    # print(len(y[0]))
+    # exit()
+
+    outputs = pd.DataFrame(y)
+    outputs.columns = ["min", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "max"]
+    list_target = ['min', '40%', '10%', '90%']
+    list_features = ['tension', 'amplitude', "deplacement_poids_propre"]
+    y_selected = outputs[list_target]
+    X = X[list_features]
+    X_train, X_test, y_train, y_test = train_test_split(X, y_selected, test_size=.2)
+    srgm = SurrogateModeling(['catboost','keras','lgbm','xgboost','KRG'],'regression')
+    learners = {"keras":KerasNN,'KRG':KRGModel}
+    srgm.get_best_model(X_train, y_train, add_learner=True, learner=learners)
+    srgm.save("./metamodel_test","test_file")
+

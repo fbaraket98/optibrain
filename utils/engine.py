@@ -8,6 +8,7 @@ from sklearn import base
 from utils.project import Project
 from palma.base.splitting_strategy import ValidationStrategy
 from utils.utils import get_hash
+from sklearn.multioutput import MultiOutputRegressor, MultiOutputClassifier
 
 
 class BaseOptimizer(metaclass=ABCMeta):
@@ -90,22 +91,39 @@ class FlamlOptimizer(BaseOptimizer):
         self.engine_parameters["task"] = self.problem
         self.allowing_splitter(splitter)
         self.__optimizer = AutoML()
+
+        is_multi_output = isinstance(y, pd.DataFrame) and y.shape[1] > 1
         # Add new learners
         if self.learner is not None:
             for key, value in self.learner.items():
                 self.__optimizer.add_learner(key, learner_class=value)
+        y_train = (
+            pd.Series(y.values.flatten(), index=range(len(X)))
+            if not is_multi_output
+            else y.iloc[:, 0].to_numpy()
+        )
         self.__optimizer.fit(
             X_train=pd.DataFrame(X.values, index=range(len(X))),
-            y_train=pd.Series(y.values, index=range(len(X))),
+            y_train=y_train,
             split_type=split_type, groups=groups,
             mlflow_logging=False,
             **self.engine_parameters
         )
+        base_model = self.__optimizer.model.model
+        if is_multi_output:
+            if self.problem == "regression":
+                self._model = MultiOutputRegressor(base_model)
+            elif self.problem == "classification":
+                self._model = MultiOutputClassifier(base_model)
+            else:
+                raise ValueError("Unknown problem type")
+        else:
+            self._model = base_model
         logging.basicConfig(level=logging.DEBUG)
 
     @property
     def best_model_(self) -> base.BaseEstimator:
-        return self.__optimizer.model.model
+        return self._model
 
     @property
     def transformer_(self):

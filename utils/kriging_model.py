@@ -1,15 +1,17 @@
-from smt.surrogate_models import KRG
+from sklearn.base import BaseEstimator
 import numpy as np
+from smt.surrogate_models import KRG
 
-class KRGModel:
-    def __init__(self, task='regression', **config):
+class KRGModel(BaseEstimator):
+    def __init__(self,n_jobs=None, task='regression', theta0=1.0):
         super().__init__()
         self.task = task
-        self.config = config
+        self.theta0 = theta0
         self.model = None
+        self.n_jobs= n_jobs
 
     @classmethod
-    def search_space(cls, data_size, task):
+    def search_space(cls, data_size=None, task=None):
         return {
             'theta0': {'domain': [1e-2, 1e1], 'init_value': 1.0, 'low_cost_init_value': 1.0},
         }
@@ -22,17 +24,28 @@ class KRGModel:
     def size(cls, config):
         return 1
 
-    def fit(self, X_train, y_train, **kwargs):
-        X_train = np.array(X_train)
-        y_train = np.array(y_train).reshape(-1, 1)
-        theta = self.config.get('theta0', 1.0)
-        self.model = KRG(theta0=[theta])
-        self.model.set_training_values(np.array(X_train), np.array(y_train).reshape(-1, 1))
+    def fit(self, X, y, **kwargs):
+        X = np.array(X)
+        y = np.array(y).reshape(-1, 1)
+        self.model = KRG(theta0=[self.theta0])
+        self.model.set_training_values(X, y)
         self.model.train()
+        return self
 
-    def predict(self, X_new):
-        X_new = np.array(X_new)
-        return self.model.predict_values(X_new).flatten()
+    def predict(self, X):
+        X = np.array(X)
+        return self.model.predict_values(X).flatten()
+
+    def get_params(self, deep=True):
+        return {
+            "task": self.task,
+            "theta0": self.theta0,
+        }
+
+    def set_params(self, **params):
+        for key, val in params.items():
+            setattr(self, key, val)
+        return self
 
     def cleanup(self):
         self.model = None
