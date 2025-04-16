@@ -109,7 +109,11 @@ class FlamlOptimizer(BaseOptimizer):
             mlflow_logging=False,
             **self.engine_parameters
         )
-        base_model = self.__optimizer.model.model
+        if is_multi_output:
+            base_model = self.__optimizer.model
+        else:
+            base_model = self.__optimizer.model.model
+
         if is_multi_output:
             if self.problem == "regression":
                 self._model = MultiOutputRegressor(base_model)
@@ -117,6 +121,7 @@ class FlamlOptimizer(BaseOptimizer):
                 self._model = MultiOutputClassifier(base_model)
             else:
                 raise ValueError("Unknown problem type")
+            self._model.fit(X, y)
         else:
             self._model = base_model
         logging.basicConfig(level=logging.DEBUG)
