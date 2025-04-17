@@ -5,7 +5,7 @@ A python package that aims to select automatically the best model for your tasks
 
 ## Install
 
-`pip install optibrain@git+`
+`pip install optibrain@git+https://github.com/fbaraket98/optibrain`
 
 ## Simple usage
 
@@ -26,14 +26,18 @@ estimator_list = ["catboost", 'xgboost', 'lgbm', 'KRG', 'keras']
 # instanciate the metamodel
 srgt = SurrogateModeling(estimator_list=estimator_list, problem='classification')
 # select the best model
-srgt.get_best_model(X, y, add_learner=True, learner={"KRG": KRGModel})
-
+srgt.get_best_model(X, y, add_learner=True, learners={"KRG": KRGModel})
+# print the performances of the estimators
+print(srgt.get_estimators_performances)
 # save the model
 srgt.save("./metamodel_folder", "file_name")
 ```
 
-In the method get_best_model, the user can add new learner, by setting True to add_learner and adding learner dictionary with
-the names of the learner and their classes.  
+In the method get_best_model, the user can add new learners, by setting True to add_learner and adding learner dictionary with
+the names of the learners and their classes.  
 The result of this example is a HDF5 file where the information about the selected model are saved.
+
+The saved model, can be loaded with the package revivai.
+
 
 

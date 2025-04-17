@@ -4,7 +4,7 @@ import tensorflow.keras as keras
 from tensorflow.keras import layers
 import numpy as np
 
-class KerasNN(BaseEstimator):
+class FullNeuralNetwork(BaseEstimator):
     def __init__(self, n_jobs=None, hidden_units=64, epochs=10, batch_size=32, task='regression'):
         super().__init__()
         self.task = task

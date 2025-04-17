@@ -137,3 +137,16 @@ class FlamlOptimizer(BaseOptimizer):
     @property
     def allow_splitter(self):
         return True
+
+    @property
+    def best_loss_estimator(self):
+        return (1- pd.Series(self.__optimizer.best_loss_per_estimator)).sort_values(ascending=False)
+
+    @property
+    def best_confid_estimator(self):
+        return self.__optimizer.best_config_per_estimator
+
+    @property
+    def best_time_estimator(self):
+        return self.__optimizer.best_config_train_time
+
