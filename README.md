@@ -15,7 +15,7 @@ A python package that aims to select automatically the best model for your tasks
 import pandas as pd
 
 from sklearn.datasets import make_classification
-from base.surrogate_model import SurrogateModeling
+from optibrain.base import SurrogateModeling
 from utils.kriging_model import KRGModel
 import numpy as np
 
