@@ -17,7 +17,7 @@ def test_save():
     # Instanciate the metamodel
     srgt = SurrogateModeling(estimator_list=estimator_list, problem='regression', project_name='default')
     # Get the best model, wihth adding new learner to flaml
-    srgt.get_best_model(X, y, add_learner=True, learner=learners)
+    srgt.get_best_model(X, y, add_learner=True, learners=learners)
     # Save the model
     # Asserts
     assert np.allclose(srgt.X, X), "The data X are not matching"
@@ -48,7 +48,7 @@ def test_multioutput():
     X_train, X_test, y_train, y_test = train_test_split(X, y_selected, test_size=.2)
     srgm = SurrogateModeling(['catboost','RN','lgbm','xgboost','KRG'],'regression')
     learners = {"RN":FullNeuralNetwork,'KRG':KRGModel}
-    srgm.get_best_model(X_train, y_train, add_learner=True, learner=learners)
+    srgm.get_best_model(X_train, y_train, add_learner=True, learners=learners)
     assert np.allclose(srgm.X, X_train), "The data X are not matching"
     assert np.allclose(srgm.y,y_train), "The data y are not matching"
 
