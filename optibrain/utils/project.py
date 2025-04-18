@@ -4,7 +4,7 @@ from hashlib import blake2b
 import pandas as pd
 
 from palma.base.splitting_strategy import ValidationStrategy
-from src.optibrain.utils.utils import check_started
+from optibrain.utils.utils import check_started
 
 
 class Project:

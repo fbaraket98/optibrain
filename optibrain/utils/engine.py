@@ -5,9 +5,9 @@ from typing import Dict
 import pandas as pd
 from flaml import AutoML
 from sklearn import base
-from src.optibrain.utils.project import Project
+from optibrain.utils.project import Project
 from palma.base.splitting_strategy import ValidationStrategy
-from src.optibrain.utils.utils import get_hash
+from optibrain.utils.utils import get_hash
 from sklearn.multioutput import MultiOutputRegressor, MultiOutputClassifier
 
 

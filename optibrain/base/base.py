@@ -2,8 +2,8 @@ import pandas as pd
 from revivai import LiteModel
 from palma.base.splitting_strategy import ValidationStrategy
 from sklearn.model_selection import ShuffleSplit
-from src.optibrain.utils.project import Project
-from src.optibrain.utils.engine import FlamlOptimizer
+from optibrain.utils.project import Project
+from optibrain.utils.engine import FlamlOptimizer
 from typing import Any, List, Dict, Tuple
 
 
