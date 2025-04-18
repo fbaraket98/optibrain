@@ -51,9 +51,9 @@ def _clone(estimator):
     return estimator
 
 
-def get_splitting_matrix(X: pd.DataFrame,
-                         iter_cross_validation: iter,
-                         expand=False) -> pd.DataFrame:
+def get_splitting_matrix(
+    X: pd.DataFrame, iter_cross_validation: iter, expand=False
+) -> pd.DataFrame:
     """
     Generate a splitting matrix based on cross-validation iterations.
 
@@ -83,14 +83,16 @@ def get_splitting_matrix(X: pd.DataFrame,
     >>> get_splitting_matrix(X, iter_cv)
     """
     if not expand:
-        all_splits = pd.DataFrame(0, index=range(len(X)),
-                                  columns=range(len(iter_cross_validation)))
+        all_splits = pd.DataFrame(
+            0, index=range(len(X)), columns=range(len(iter_cross_validation))
+        )
         for i, (train, test) in enumerate(iter_cross_validation):
             all_splits.loc[train, i] = 1
             all_splits.loc[test, i] = 2
     else:
-        all_splits = pd.DataFrame(False, index=range(len(X)),
-                                  columns=range(2 * len(iter_cross_validation)))
+        all_splits = pd.DataFrame(
+            False, index=range(len(X)), columns=range(2 * len(iter_cross_validation))
+        )
         for i, (train, test) in enumerate(iter_cross_validation):
             all_splits.loc[train, 2 * i] = True
             all_splits.loc[test, 2 * i + 1] = True
@@ -99,12 +101,12 @@ def get_splitting_matrix(X: pd.DataFrame,
 
 
 def get_hash(**kwargs) -> str:
-    """ Return a hash of parameters """
+    """Return a hash of parameters"""
 
     hash_ = sha256()
     for key, value in kwargs.items():
         if isinstance(value, datetime):
-            hash_.update(str(kwargs[key]).encode('utf-8'))
+            hash_.update(str(kwargs[key]).encode("utf-8"))
         else:
             hash_.update(json.dumps(kwargs[key]).encode())
 
@@ -134,11 +136,7 @@ def check_started(message: str, need_build: bool = False) -> Callable:
 
     def decorator(func: Callable) -> Callable:
         @wraps(func)
-        def wrapper(
-                project: 'Project',
-                *args,
-                **kwargs
-        ) -> Callable:
+        def wrapper(project: "Project", *args, **kwargs) -> Callable:
             if project.is_started == need_build:
                 return func(project, *args, **kwargs)
             else:

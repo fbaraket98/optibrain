@@ -2,18 +2,23 @@ from sklearn.base import BaseEstimator
 import numpy as np
 from smt.surrogate_models import KRG
 
+
 class KRGModel(BaseEstimator):
-    def __init__(self,n_jobs=None, task='regression', theta0=1.0):
+    def __init__(self, n_jobs=None, task="regression", theta0=1.0):
         super().__init__()
         self.task = task
         self.theta0 = theta0
         self.model = None
-        self.n_jobs= n_jobs
+        self.n_jobs = n_jobs
 
     @classmethod
     def search_space(cls, data_size=None, task=None):
         return {
-            'theta0': {'domain': [1e-2, 1e1], 'init_value': 1.0, 'low_cost_init_value': 1.0},
+            "theta0": {
+                "domain": [1e-2, 1e1],
+                "init_value": 1.0,
+                "low_cost_init_value": 1.0,
+            },
         }
 
     @classmethod

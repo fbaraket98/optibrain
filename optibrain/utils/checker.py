@@ -1,6 +1,8 @@
 from sklearn.utils.validation import check_X_y
 
 from palma import Project
+
+
 class ProjectPlanChecker(object):
     """
     ProjectPlanChecker is an object that checks the project plan.
@@ -19,10 +21,13 @@ class ProjectPlanChecker(object):
     """
 
     def _check_arrays(self, project: Project) -> None:
-        _, _ = check_X_y(project.X,
-                         project.y,
-                         dtype=None,
-                         force_all_finite='allow-nan', multi_output=True)
+        _, _ = check_X_y(
+            project.X,
+            project.y,
+            dtype=None,
+            force_all_finite="allow-nan",
+            multi_output=True,
+        )
 
     def _check_project_problem(self, project: Project) -> None:
         if not project.problem in ["classification", "regression"]:

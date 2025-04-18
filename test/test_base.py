@@ -12,15 +12,15 @@ def test_save():
     X = pd.DataFrame(X)
     y = pd.Series(y)
     # Optimizer Flaml parameters
-    estimator_list = ['catboost', 'xgboost', "lgbm", "KRG", 'RN']
-    learners = {"KRG": KRGModel, 'RN': FullNeuralNetwork}
+    estimator_list = ["catboost", "xgboost", "lgbm", "KRG", "RN"]
+    learners = {"KRG": KRGModel, "RN": FullNeuralNetwork}
     # Instanciate the metamodel
-    srgt = SurrogateModeling(estimator_list=estimator_list, problem='regression', project_name='default')
+    srgt = SurrogateModeling(
+        estimator_list=estimator_list, problem="regression", project_name="default"
+    )
     # Get the best model, wihth adding new learner to flaml
     srgt.get_best_model(X, y, add_learner=True, learners=learners)
     # Save the model
     # Asserts
     assert np.allclose(srgt.X, X), "The data X are not matching"
     assert np.allclose(srgt.y, y), "The data y are not matching"
-
-

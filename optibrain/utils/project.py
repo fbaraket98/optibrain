@@ -39,15 +39,13 @@ class Project:
         Starts the project with the specified data and validation strategy.
     """
 
-    def __init__(
-            self,
-            project_name: str,
-            problem: str
-    ) -> None:
+    def __init__(self, project_name: str, problem: str) -> None:
 
         self.__project_name = project_name
         self.__date = datetime.now()
-        self.__study_name = str(self.__date).replace("-", "").replace(":", "_").replace(".", "_")
+        self.__study_name = (
+            str(self.__date).replace("-", "").replace(":", "_").replace(".", "_")
+        )
         self.__problem = problem
 
         self.__components = {}
@@ -57,6 +55,7 @@ class Project:
     @check_started("You cannot add a Component for a started Project")
     def add(self, component: "Component") -> None:
         from palma.components.base import ProjectComponent
+
         self.__component_list.append(str)
         if isinstance(component, ProjectComponent):
             self.__components.update({str(component): component})
@@ -67,25 +66,26 @@ class Project:
 
     @check_started("You cannot restart an Project")
     def start(
-            self,
-            X: pd.DataFrame,
-            y: pd.Series,
-            splitter,
-            X_test=None, y_test=None,
-            groups=None,
-            **kwargs
+        self,
+        X: pd.DataFrame,
+        y: pd.Series,
+        splitter,
+        X_test=None,
+        y_test=None,
+        groups=None,
+        **kwargs,
     ) -> None:
         from optibrain.utils.checker import ProjectPlanChecker
         from palma import logger
+
         self.__validation_strategy = ValidationStrategy(splitter)
         self.__X, self.__y = self.__validation_strategy(
-            X=X, y=y, X_test=X_test, y_test=y_test,
-            groups=groups)
+            X=X, y=y, X_test=X_test, y_test=y_test, groups=groups
+        )
         ProjectPlanChecker().run_checks(self)
         self.__data_id = blake2b(
-            pd.util.hash_pandas_object(
-                pd.concat([self.__X, self.__y], axis=1)
-            ).values, digest_size=5
+            pd.util.hash_pandas_object(pd.concat([self.__X, self.__y], axis=1)).values,
+            digest_size=5,
         ).hexdigest()
         logger.logger.log_project(self)
         self.__call_components(self)
@@ -116,7 +116,7 @@ class Project:
         return self.__problem
 
     @property
-    def validation_strategy(self) -> 'ValidationStrategy':
+    def validation_strategy(self) -> "ValidationStrategy":
         return self.__validation_strategy
 
     @property

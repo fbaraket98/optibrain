@@ -20,20 +20,17 @@ class BaseOptimizer(metaclass=ABCMeta):
         self._problem = "unknown"
 
     @abstractmethod
-    def optimize(self, X: pd.DataFrame, y: pd.Series,
-                 splitter: "ValidationStrategy" = None
-                 ) -> None:
-        ...
+    def optimize(
+        self, X: pd.DataFrame, y: pd.Series, splitter: "ValidationStrategy" = None
+    ) -> None: ...
 
     @property
     @abstractmethod
-    def best_model_(self) -> None:
-        ...
+    def best_model_(self) -> None: ...
 
     @property
     @abstractmethod
-    def transformer_(self) -> None:
-        ...
+    def transformer_(self) -> None: ...
 
     @property
     def engine_parameters(self) -> Dict:
@@ -49,6 +46,7 @@ class BaseOptimizer(metaclass=ABCMeta):
 
     def start(self, project: "Project"):
         from palma import logger
+
         self._problem = project.problem
         self.optimize(
             project.X.iloc[project.validation_strategy.train_index],
@@ -56,12 +54,10 @@ class BaseOptimizer(metaclass=ABCMeta):
             splitter=project.validation_strategy,
         )
 
-        logger.logger.log_artifact(
-            self.best_model_,
-            self.__run_id)
+        logger.logger.log_artifact(self.best_model_, self.__run_id)
         try:
             logger.logger.log_metrics(
-                {"best_estimator": str(self.best_model_)}, 'optimizer'
+                {"best_estimator": str(self.best_model_)}, "optimizer"
             )
         except:
             pass
@@ -80,9 +76,9 @@ class FlamlOptimizer(BaseOptimizer):
         super().__init__(engine_parameters)
         self.learner = learner_dict
 
-    def optimize(self, X: pd.DataFrame, y: pd.DataFrame,
-                 splitter: ValidationStrategy = None
-                 ) -> None:
+    def optimize(
+        self, X: pd.DataFrame, y: pd.DataFrame, splitter: ValidationStrategy = None
+    ) -> None:
         split_type = None if splitter is None else splitter.splitter
         groups = None if splitter is None else splitter.groups
         groups = groups if groups is None else groups[splitter.train_index]
@@ -105,9 +101,10 @@ class FlamlOptimizer(BaseOptimizer):
         self.__optimizer.fit(
             X_train=pd.DataFrame(X.values, index=range(len(X))),
             y_train=y_train,
-            split_type=split_type, groups=groups,
+            split_type=split_type,
+            groups=groups,
             mlflow_logging=False,
-            **self.engine_parameters
+            **self.engine_parameters,
         )
         if is_multi_output:
             base_model = self.__optimizer.model
@@ -140,7 +137,9 @@ class FlamlOptimizer(BaseOptimizer):
 
     @property
     def best_loss_estimator(self):
-        return (1- pd.Series(self.__optimizer.best_loss_per_estimator)).sort_values(ascending=False)
+        return (1 - pd.Series(self.__optimizer.best_loss_per_estimator)).sort_values(
+            ascending=False
+        )
 
     @property
     def best_confid_estimator(self):
@@ -149,4 +148,3 @@ class FlamlOptimizer(BaseOptimizer):
     @property
     def best_time_estimator(self):
         return self.__optimizer.best_config_train_time
-

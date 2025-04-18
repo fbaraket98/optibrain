@@ -17,7 +17,9 @@ class SurrogateModeling:
         self.problem = problem
         self.project_name = project_name
 
-    def get_best_model(self, X: pd.DataFrame, y: pd.DataFrame, add_learner=False, learners=None):
+    def get_best_model(
+        self, X: pd.DataFrame, y: pd.DataFrame, add_learner=False, learners=None
+    ):
         """Function that aims to select the best model, the user can also add learner to flaml
         :param X: data for training
         :param y: data for training
@@ -28,18 +30,25 @@ class SurrogateModeling:
             "time_budget": 30,
             "metric": "r2",
             "log_training_metric": True,
-            "estimator_list": self.estimator_list
+            "estimator_list": self.estimator_list,
         }
-        splitting_strategy = ValidationStrategy(splitter=ShuffleSplit(
-            n_splits=10, random_state=1,
-        ))
+        splitting_strategy = ValidationStrategy(
+            splitter=ShuffleSplit(
+                n_splits=10,
+                random_state=1,
+            )
+        )
         X, y = splitting_strategy(X, y)
         self.X = X
         self.y = y
 
         # Project creation
         project = Project(problem=self.problem, project_name=self.project_name)
-        project.start(X, y, splitter=ShuffleSplit(n_splits=10, random_state=42), )
+        project.start(
+            X,
+            y,
+            splitter=ShuffleSplit(n_splits=10, random_state=42),
+        )
         # Create and start optimizer
         if add_learner:
             optimizer = FlamlOptimizer(engine_parameters, learners)
@@ -63,7 +72,7 @@ class SurrogateModeling:
 
     @property
     def get_estimators_performances(self):
-        """Function that returns the performances of trained estimator """
+        """Function that returns the performances of trained estimator"""
         return self.__performance
 
     @property
