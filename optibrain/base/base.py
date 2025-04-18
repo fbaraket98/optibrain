@@ -1,5 +1,5 @@
 import pandas as pd
-from revivai import LiteModel
+from revival import LiteModel
 from palma.base.splitting_strategy import ValidationStrategy
 from sklearn.model_selection import ShuffleSplit
 from optibrain.utils.project import Project
