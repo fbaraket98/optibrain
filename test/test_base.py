@@ -1,10 +1,10 @@
 import pandas as pd
 import os
 from sklearn.datasets import make_classification
-from optibrain.base import SurrogateModeling
+from src.optibrain.base.base import SurrogateModeling
 import numpy as np
-from utils.NN_model import FullNeuralNetwork
-from utils.kriging_model import KRGModel
+from src.optibrain.utils.NN_model import FullNeuralNetwork
+from src.optibrain.utils.kriging_model import KRGModel
 
 
 def test_save():
@@ -34,11 +34,6 @@ def test_multioutput():
     X.columns = ['tension', 'amplitude', 'deplacement_serrage',
                  'deplacement_poids_propre', 'span_length', 'denivele']
     y = x['OUTPUT']['data']
-
-    # print(len(y))
-    # print(len(y[0]))
-    # exit()
-
     outputs = pd.DataFrame(y)
     outputs.columns = ["min", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "max"]
     list_target = ['min', '40%', '10%', '90%']
@@ -49,6 +44,10 @@ def test_multioutput():
     srgm = SurrogateModeling(['catboost','RN','lgbm','xgboost','KRG'],'regression')
     learners = {"RN":FullNeuralNetwork,'KRG':KRGModel}
     srgm.get_best_model(X_train, y_train, add_learner=True, learners=learners)
+    print(srgm.model)
+
+    srgm.save('./metamodel_test','file_testing.h5')
+
     assert np.allclose(srgm.X, X_train), "The data X are not matching"
     assert np.allclose(srgm.y,y_train), "The data y are not matching"
 
